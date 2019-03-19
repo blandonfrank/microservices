@@ -1,5 +1,6 @@
 package com.redpony.portfolioservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ import java.util.Date;
 
 @Getter
 @Setter
-public abstract class Audit implements Serializable {
+public abstract class AbstractEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_date", nullable = false, updatable = false)
     @CreatedDate
@@ -30,4 +31,12 @@ public abstract class Audit implements Serializable {
     @Column(name = "update_date", nullable = false)
     @LastModifiedDate
     private Date update_date;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
+    @Column(name = "uid", unique = true)
+    private int uid;
+
+
 }

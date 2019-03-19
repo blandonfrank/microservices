@@ -2,35 +2,28 @@ package com.redpony.portfolioservice.model;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "portfolios")
 @Getter
 @Setter @NoArgsConstructor @AllArgsConstructor
-public class Portfolio extends Auditable{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
-    private Long id;
+public class Portfolio extends AbstractEntity {
     @NotBlank
     private String userName;
     private String owner;
-    private BigDecimal total;
-    private BigDecimal balance;
+    private BigDecimal total = BigDecimal.ZERO;
+    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal cash = BigDecimal.ZERO;
     private String sentiment;
-    private BigDecimal performance;
+    private BigDecimal performance = BigDecimal.ZERO;
+    private double risk;
 
-    @ManyToOne
-    @JoinColumn
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Stock stocks;
+    @ManyToMany
+    private Set<Stock> stocksOwned;
 
 
 

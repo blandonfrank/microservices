@@ -10,18 +10,13 @@ import java.util.Set;
 
 @Entity
 @Table(name = "stocks")
-@Setter @NoArgsConstructor @AllArgsConstructor
-public class Stock extends Auditable{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+public class Stock extends AbstractEntity {
+    private String userName;
     private String symbol;
     private int shares;
     private BigDecimal price;
-    private BigDecimal total;
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-    @OneToMany(mappedBy = "stocks", cascade = CascadeType.ALL)
-    private Set<Portfolio> portfolios;
 }
