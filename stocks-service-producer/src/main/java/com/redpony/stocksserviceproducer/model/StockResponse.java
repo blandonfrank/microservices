@@ -1,11 +1,14 @@
 package com.redpony.stocksserviceproducer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.math.BigDecimal;
-
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StockResponse {
-    String symbol;
-    BigDecimal price;
+    @JsonProperty("Meta Data")
+    private MetaData metaData;
+    @JsonProperty("Time Series (5min)")
+    private TimeSeries timeSeries;
 }

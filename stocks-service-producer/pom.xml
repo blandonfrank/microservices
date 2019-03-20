@@ -70,6 +70,12 @@
 			<version>3.14.0</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.patriques</groupId>
+			<artifactId>alphavantage4j</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -92,5 +98,16 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>bintray-patriques82-maven</id>
+			<name>bintray</name>
+			<url>https://dl.bintray.com/patriques82/maven</url>
+		</repository>
+	</repositories>
 
 </project>
