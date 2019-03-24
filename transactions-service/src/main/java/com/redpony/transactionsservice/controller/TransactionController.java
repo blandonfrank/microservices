@@ -35,7 +35,6 @@ public class TransactionController {
                                          @RequestParam("price") BigDecimal price,
                                          @RequestParam("shares") int shares,
                                          @RequestParam("type") String type){
-        log.info("Creating transaction: " + username +"\n" + symbol + "\n " + price + "\n" + shares + "\n" + type);
        return transactionService.createTransaction(username, symbol, price, shares, type);
     }
 }
