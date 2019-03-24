@@ -30,13 +30,11 @@ public class PortfolioService {
     private StockRepository stockRepository;
 
     //Once authentication is added, only allow admins to call this
-    @GetMapping("/")
     public List<Portfolio> getAllPortfolios(){
         return portfolioRepository.findAll();
     }
 
 
-    @GetMapping("/{username}")
     public Portfolio getPortfolio(@PathVariable("username") final String username){
         Portfolio portfolio = portfolioRepository.findByUserName(username);
 
@@ -47,8 +45,6 @@ public class PortfolioService {
         return portfolio;
     }
 
-    @PostMapping("/create/{username}")
-    @Transactional
     public Portfolio createPorfolio(@PathVariable("username") final String username){
         Portfolio portfolio = new Portfolio();
         if(!StringUtils.isEmpty(username)){
@@ -61,7 +57,6 @@ public class PortfolioService {
         return portfolio;
     }
 
-    @PutMapping("/update/{username}")
     public Portfolio updatePortfolio(@PathVariable("username") final String username, @PathParam("symbol") final String symbol, @PathParam("shares") int shares){
         Portfolio portfolio = portfolioRepository.findByUserName(username);
         if(portfolio !=null){

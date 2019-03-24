@@ -4,8 +4,6 @@ import javax.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Set;
 
 
 @Entity
@@ -15,8 +13,7 @@ public class Stock extends AbstractEntity {
     private String userName;
     private String symbol;
     private int shares;
-    private BigDecimal price;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    private BigDecimal totalReturn = BigDecimal.ZERO;
+    private BigDecimal averageCost = BigDecimal.ZERO;
 
 }
