@@ -1,5 +1,5 @@
 package com.redpony.transactionsservice.model;
 
 public enum TransactionType {
-    BUY, SELL
+    BUY, SELL, DEPOSIT, WITHDRAW
 }

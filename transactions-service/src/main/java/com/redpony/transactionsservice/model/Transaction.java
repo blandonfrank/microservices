@@ -3,7 +3,9 @@ package com.redpony.transactionsservice.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -28,7 +30,7 @@ public class Transaction {
     private Date date;
 
     private BigDecimal commission = BigDecimal.ZERO;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Stock stock;
 
 
