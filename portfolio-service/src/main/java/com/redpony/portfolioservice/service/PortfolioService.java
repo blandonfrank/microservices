@@ -11,16 +11,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.transaction.Transactional;
 import javax.websocket.server.PathParam;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 @RestController
 @Slf4j
-@RequestMapping("/portfolio")
 public class PortfolioService {
 
     @Autowired
@@ -29,14 +26,13 @@ public class PortfolioService {
     @Autowired
     private StockRepository stockRepository;
 
-    //Once authentication is added, only allow admins to call this
     public List<Portfolio> getAllPortfolios(){
         return portfolioRepository.findAll();
     }
 
 
     public Portfolio getPortfolio(@PathVariable("username") final String username){
-        Portfolio portfolio = portfolioRepository.findByUserName(username);
+        Portfolio portfolio = portfolioRepository.findByUsername(username);
 
         log.info("Looking up portfolio for " + username);
         if(Objects.isNull(portfolio))
@@ -48,25 +44,25 @@ public class PortfolioService {
     public Portfolio createPorfolio(@PathVariable("username") final String username){
         Portfolio portfolio = new Portfolio();
         if(!StringUtils.isEmpty(username)){
-            if(portfolioRepository.findByUserName(username) !=null)
+            if(portfolioRepository.findByUsername(username) !=null)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Portfolio already exists for: " + username );
 
-            portfolio.setUserName(username);
+            portfolio.setUsername(username);
             portfolioRepository.save(portfolio);
         }
         return portfolio;
     }
 
     public Portfolio updatePortfolio(@PathVariable("username") final String username, @PathParam("symbol") final String symbol, @PathParam("shares") int shares){
-        Portfolio portfolio = portfolioRepository.findByUserName(username);
+        Portfolio portfolio = portfolioRepository.findByUsername(username);
         if(portfolio !=null){
-            Stock stock = stockRepository.findByUserNameAndSymbol(username, symbol);
+            Stock stock = stockRepository.findByUsernameAndSymbol(username, symbol);
 
             if (stock !=null)
                 stock.setShares(stock.getShares()+shares);
             else {
                 stock = new Stock();
-                stock.setUserName(username);
+                stock.setUsername(username);
                 stock.setSymbol(symbol);
                 stock.setShares(shares);
                 Set<Stock> currentStock = portfolio.getStocksOwned();

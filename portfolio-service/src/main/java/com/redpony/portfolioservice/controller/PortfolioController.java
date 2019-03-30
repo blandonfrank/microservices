@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import javax.websocket.server.PathParam;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -16,6 +17,12 @@ public class PortfolioController {
 
     @Autowired
     PortfolioService portfolioService;
+
+    //Once authentication is added, only allow admins to call this
+    @GetMapping("/admin/all")
+    public List<Portfolio> getAllPortfolios(){
+        return portfolioService.getAllPortfolios();
+    }
 
     @GetMapping("/{username}")
     public Portfolio getPortfolio(@PathVariable("username") final String username){

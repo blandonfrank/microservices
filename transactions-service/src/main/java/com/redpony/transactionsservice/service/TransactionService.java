@@ -31,6 +31,9 @@ public class TransactionService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    public List<Transaction> getAllTransactions(){
+        return transactionRepository.findAll();
+    }
     public Transaction getById(Long id){
         return transactionRepository.findById(id).orElse(null);
     }
@@ -73,6 +76,21 @@ public class TransactionService {
 
         log.info("Sending transaction " + transaction.toString() + " message to queue ");
         rabbitTemplate.convertAndSend(TransactionsServiceApplication.FINANCIAL_MESSAGE_QUEUE, transactionMap);
+    }
+
+    public Transaction updateTransaction(Transaction transaction){
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+        return updatedTransaction;
+    }
+
+    public boolean deleteTransaction(Long id){
+        //check if the transaction exists
+        if(getById(id)==null) {
+            log.info("Transaction not found {}", id);
+            return false;
+        }else
+            transactionRepository.deleteById(id);
+        return true;
     }
 
 }

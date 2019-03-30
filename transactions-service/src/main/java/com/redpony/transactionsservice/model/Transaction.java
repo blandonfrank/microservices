@@ -13,7 +13,6 @@ import java.util.Date;
 @Entity
 @Table(name = "transactions")
 public class Transaction {
-    @JsonIgnore
     @Id
     @GeneratedValue
     Long id;

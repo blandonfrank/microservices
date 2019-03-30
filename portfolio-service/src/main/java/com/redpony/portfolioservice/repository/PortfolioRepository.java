@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PortfolioRepository extends JpaRepository<Portfolio, Integer> {
-    Portfolio findByUserName(String username);
+    Portfolio findByUsername(String username);
 }

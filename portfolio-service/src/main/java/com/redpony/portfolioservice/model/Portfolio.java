@@ -9,10 +9,11 @@ import java.util.Set;
 @Entity
 @Table(name = "portfolios")
 @Getter
-@Setter @NoArgsConstructor @AllArgsConstructor
+@Setter @NoArgsConstructor @AllArgsConstructor @RequiredArgsConstructor
 public class Portfolio extends AbstractEntity {
     @NotBlank
-    private String userName;
+    @NonNull
+    private String username;
     private String owner;
     private BigDecimal total = BigDecimal.ZERO;
     private BigDecimal balance = BigDecimal.ZERO;
@@ -21,7 +22,7 @@ public class Portfolio extends AbstractEntity {
     private BigDecimal performance = BigDecimal.ZERO;
     private double risk;
 
-    @ManyToMany
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<Stock> stocksOwned;
 
 
