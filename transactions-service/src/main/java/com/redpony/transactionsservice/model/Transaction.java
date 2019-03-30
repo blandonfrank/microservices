@@ -24,8 +24,8 @@ public class Transaction {
     private BigDecimal amount = BigDecimal.ZERO;
     private TransactionType transactionType;
 
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    @Column(name = "trans_date", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", locale = "en_us")
+    @Column(name = "trans_date", nullable = false, updatable = true)
     @CreationTimestamp
     private Date date;
 
