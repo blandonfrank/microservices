@@ -42,25 +42,10 @@ public class TransactionService {
         return transactionRepository.findByUserName(userName);
     }
 
-    public Transaction createTransaction(String username, String symbol, BigDecimal price, int shares, String type){
-        log.info("Creating transaction: " + username +"\n" + symbol + "\n " + price + "\n" + shares + "\n" + type);
-
-        Transaction transaction = new Transaction();
-        transaction.setUserName(username);
-        transaction.setTransactionType(TransactionType.valueOf(type));
-
-        Stock stock = new Stock();
-        stock.setPrice(price);
-        stock.setShares(shares);
-        stock.setSymbol(symbol);
-        stockRepository.save(stock);
-
-        //add stock to transaction
-        transaction.setAmount(price.multiply(new BigDecimal(shares))); //set total amount of the transaction
-        transaction.setStock(stock);
+    public Transaction createTransaction(Transaction transaction){
+        log.info("Creating transaction: {}", transaction.toString());
 
         transactionRepository.save(transaction);
-
         sendTransactionMessage(transaction);
 
         return transaction;

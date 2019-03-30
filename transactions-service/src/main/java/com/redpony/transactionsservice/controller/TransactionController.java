@@ -6,11 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -41,13 +39,9 @@ public class TransactionController {
     }
 
     @PostMapping("/create")
-    public Transaction createTransaction(@RequestParam("username") String username,
-                                         @RequestParam("symbol") String symbol,
-                                         @RequestParam("price") BigDecimal price,
-                                         @RequestParam("shares") int shares,
-                                         @RequestParam("type") String type){
+    public  ResponseEntity<Transaction>  createTransaction(@Valid @RequestBody Transaction transaction){
         log.info("Request to create transaction: {}");
-       return transactionService.createTransaction(username, symbol, price, shares, type);
+        return ResponseEntity.ok().body(transactionService.createTransaction(transaction));
     }
 
     @PutMapping("/update/{id}")
