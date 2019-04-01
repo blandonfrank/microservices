@@ -47,10 +47,17 @@ class TransactionList extends Component {
             day: '2-digit'
           }).format(new Date(transaction.date))}</td>
         <td>{transaction.amount}</td>
-        <td>{transaction.shares}</td>
+        <td>
+        <ul>
+          Symbol: {transaction.stock.symbol}</ul>
+        <ul>
+          Shares: {transaction.stock.shares}</ul>
+        <ul>
+          Price: {transaction.stock.price}</ul>
+          </td>
         <td>
           <ButtonGroup>
-            <Button size="sm" color="primary" tag={Link} to={"/transactions/update" + transaction.id}>Edit</Button>
+            <Button size="sm" color="primary" tag={Link} to={"/transactions/" + transaction.id}>Edit</Button>
             <Button size="sm" color="danger" onClick={() => this.remove(transaction.id)}>Delete</Button>
           </ButtonGroup>
         </td>
@@ -62,7 +69,7 @@ class TransactionList extends Component {
         <AppNavbar/>
         <Container fluid>
           <div className="float-right">
-            <Button color="success" tag={Link} to="/transactions/create">Add Transaction</Button>
+            <Button color="success" tag={Link} to="/transactions/new">Add Transaction</Button>
           </div>
           <h3>My Transactions</h3>
           <Table className="mt-4">

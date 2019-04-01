@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @Slf4j
@@ -29,7 +30,7 @@ public class TransactionController {
     @RequestMapping("/id/{id}")
     public Transaction getTransaction(@PathVariable("id") Long id){
         log.info("Request to get transaction: {}", id);
-        return transactionService.getById(id);
+        return verifyTransactionExists(id);
     }
 
     @RequestMapping("/user/{username}")
@@ -44,17 +45,34 @@ public class TransactionController {
         return ResponseEntity.ok().body(transactionService.createTransaction(transaction));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/update")
     public ResponseEntity<Transaction> updateTransaction(@Valid @RequestBody Transaction transaction){
         log.info("Request to update transaction: {}", transaction);
+
+        //check if transaction exist, else throw and exception
+        verifyTransactionExists(transaction.getId());
         return ResponseEntity.ok().body(transactionService.updateTransaction(transaction));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteTransaction(@PathVariable("id") Long id){
         log.info("Request to delete transaction: {}", id);
-            if(!transactionService.deleteTransaction(id))
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        //check if transaction exist, else throw and exception
+        verifyTransactionExists(id);
+        transactionService.deleteTransaction(id);
         return ResponseEntity.ok().build();
+    }
+
+    //helper method to verify that the transaction exists before trying to do anything
+    private Transaction verifyTransactionExists(Long id){
+       return transactionService.getById(id).orElseThrow(() ->
+                new NoSuchElementException("The transaction does not exists " + id));
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoSuchElementException.class)
+    public String notFoundHandler(NoSuchElementException ex){
+        return ex.getMessage();
     }
 }

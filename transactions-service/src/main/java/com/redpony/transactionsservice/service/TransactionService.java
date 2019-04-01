@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,8 +35,8 @@ public class TransactionService {
     public List<Transaction> getAllTransactions(){
         return transactionRepository.findAll();
     }
-    public Transaction getById(Long id){
-        return transactionRepository.findById(id).orElse(null);
+    public Optional<Transaction> getById(Long id){
+        return transactionRepository.findById(id);
     }
 
     public List<Transaction> getByUserName(String userName){
@@ -68,14 +69,8 @@ public class TransactionService {
         return updatedTransaction;
     }
 
-    public boolean deleteTransaction(Long id){
-        //check if the transaction exists
-        if(getById(id)==null) {
-            log.info("Transaction not found {}", id);
-            return false;
-        }else
-            transactionRepository.deleteById(id);
-        return true;
+    public void deleteTransaction(Long id){
+         transactionRepository.deleteById(id);
     }
 
 }
