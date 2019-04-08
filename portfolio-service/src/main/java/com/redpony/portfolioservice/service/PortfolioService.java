@@ -1,5 +1,7 @@
 package com.redpony.portfolioservice.service;
 
+import com.redpony.portfolioservice.exceptions.PortfolioAlreadyExistsException;
+import com.redpony.portfolioservice.exceptions.PortfolioNotFoundException;
 import com.redpony.portfolioservice.model.Portfolio;
 import com.redpony.portfolioservice.model.Stock;
 import com.redpony.portfolioservice.repository.PortfolioRepository;
@@ -11,7 +13,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import javax.websocket.server.PathParam;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -41,43 +45,69 @@ public class PortfolioService {
         return portfolio;
     }
 
-    public Portfolio createPorfolio(@PathVariable("username") final String username){
-        Portfolio portfolio = new Portfolio();
-        if(!StringUtils.isEmpty(username)){
-            if(portfolioRepository.findByUsername(username) !=null)
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Portfolio already exists for: " + username );
+    @Transactional
+    public Portfolio createPorfolio(Portfolio portfolio) throws PortfolioAlreadyExistsException{
+        if(portfolioExists(portfolio.getUsername()))
+            throw new PortfolioAlreadyExistsException("Portfolio for this user already exists");
 
-            portfolio.setUsername(username);
-            portfolioRepository.save(portfolio);
-        }
-        return portfolio;
+        return portfolioRepository.save(portfolio);
     }
 
-    public Portfolio updatePortfolio(@PathVariable("username") final String username, @PathParam("symbol") final String symbol, @PathParam("shares") int shares){
-        Portfolio portfolio = portfolioRepository.findByUsername(username);
-        if(portfolio !=null){
-            Stock stock = stockRepository.findByUsernameAndSymbol(username, symbol);
+    @Transactional
+    public Portfolio updatePortfolio(Portfolio portfolio) throws PortfolioNotFoundException{
+        if(!portfolioExists(portfolio.getUsername()))
+            throw new PortfolioNotFoundException("Portfolio not found");
 
-            if (stock !=null)
-                stock.setShares(stock.getShares()+shares);
-            else {
-                stock = new Stock();
-                stock.setUsername(username);
-                stock.setSymbol(symbol);
-                stock.setShares(shares);
-                Set<Stock> currentStock = portfolio.getStocksOwned();
-                currentStock.add(stock);
-            }
+        Portfolio portfolioToUpdate = portfolioRepository.getOne(portfolio.getId());
 
-            stockRepository.save(stock);
+        portfolioToUpdate.setBalance(portfolio.getBalance());
+        portfolioToUpdate.setCash(portfolio.getCash());
+        if(portfolio.getStocks().size() > 0)
+            portfolioToUpdate.setStocks(portfolio.getStocks());
 
-            portfolioRepository.save(portfolio);
-        }
-        return portfolio;
+        return portfolioRepository.save(portfolio);
     }
 
-//    @GetMapping("{username}/returns/")
-//    public BigDecimal getPorfolioReturns(@PathVariable("username") final String username){
-//
-//    }
+    @Transactional
+    public void deletePortfolio(int id) throws PortfolioNotFoundException{
+        if(!portfolioExists(id))
+            throw new PortfolioNotFoundException("Portfolio not found");
+
+        portfolioRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deletePortfolio(String username) throws PortfolioNotFoundException{
+        if(!portfolioExists(username))
+            throw new PortfolioNotFoundException("Portfolio not found");
+
+        portfolioRepository.deleteByUsername(username);
+    }
+
+    public BigDecimal getPorfolioReturns(final String username){
+        BigDecimal performance = BigDecimal.ZERO;
+        if(portfolioExists(username)) {
+            Portfolio portfolio = portfolioRepository.findByUsername(username);
+            performance.add(portfolio.getPerformance());
+        }
+        return performance;
+    }
+
+    public BigDecimal getPorfolioBalance(final String username){
+        BigDecimal balance = BigDecimal.ZERO;
+        if(portfolioExists(username)) {
+            Portfolio portfolio = portfolioRepository.findByUsername(username);
+            balance.add(portfolio.getPerformance());
+        }
+        return balance;
+    }
+
+
+    public boolean portfolioExists(String username){
+        return portfolioRepository.existsByUsername(username);
+    }
+
+    public boolean portfolioExists(Integer id){
+        return portfolioRepository.existsById(id);
+    }
 }

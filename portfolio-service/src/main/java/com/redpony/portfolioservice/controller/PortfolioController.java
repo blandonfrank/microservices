@@ -1,42 +1,92 @@
 package com.redpony.portfolioservice.controller;
 
+import com.redpony.portfolioservice.exceptions.PortfolioAlreadyExistsException;
+import com.redpony.portfolioservice.exceptions.PortfolioNotFoundException;
 import com.redpony.portfolioservice.model.Portfolio;
 import com.redpony.portfolioservice.service.PortfolioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.websocket.server.PathParam;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/portfolio")
+@RequestMapping("/api")
 public class PortfolioController {
 
     @Autowired
     PortfolioService portfolioService;
 
     //Once authentication is added, only allow admins to call this
-    @GetMapping("/admin/all")
+    @GetMapping("/portfolios")
     public List<Portfolio> getAllPortfolios(){
         return portfolioService.getAllPortfolios();
     }
 
-    @GetMapping("/{username}")
+
+    @GetMapping("/portfolio/{id}")
     public Portfolio getPortfolio(@PathVariable("username") final String username){
         return portfolioService.getPortfolio(username);
     }
 
-    @PostMapping("/create/{username}")
-    @Transactional
-    public Portfolio createPorfolio(@PathVariable("username") final String username){
-       return portfolioService.createPorfolio(username);
+    @GetMapping("/portfolio/user/{username}")
+    public Portfolio getPortfolioByUser(@PathVariable("username") final String username){
+        return portfolioService.getPortfolio(username);
     }
 
-    @PutMapping("/update/{username}")
-    public Portfolio updatePortfolio(@PathVariable("username") final String username, @PathParam("symbol") final String symbol, @PathParam("shares") int shares){
-        return portfolioService.updatePortfolio(username,symbol,shares);
+    @PostMapping("/portfolio")
+    @Transactional
+    public ResponseEntity<Portfolio> createPorfolio(@Valid @RequestBody Portfolio portfolio) throws PortfolioAlreadyExistsException{
+       return ResponseEntity.ok().body(portfolioService.createPorfolio(portfolio));
     }
+
+    @PutMapping("/portfolio")
+    @Transactional
+    public ResponseEntity<Portfolio> updatePortfolio(@Valid @RequestBody Portfolio portfolio) throws PortfolioNotFoundException {
+        return ResponseEntity.ok().body(portfolioService.updatePortfolio(portfolio));
+    }
+
+    @DeleteMapping("/portfolio/{id}")
+    public ResponseEntity<?> deletePortfolio(@PathVariable("id") int id) throws PortfolioNotFoundException {
+        log.info("Request to delete portfolio: {}", id);
+        portfolioService.deletePortfolio(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/portfolio/user/{username}")
+    public ResponseEntity<?> deletePortfolio(@PathVariable("username") String username) throws PortfolioNotFoundException {
+        log.info("Request to delete portfolio(s): {}", username);
+        portfolioService.deletePortfolio(username);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/portfolio/{username}/returns")
+    public BigDecimal getPorfolioReturns(@PathVariable("username") final String username) {
+        return portfolioService.getPorfolioReturns(username);
+    }
+
+    @GetMapping("portfolio/{username}/balance")
+    public BigDecimal getPortfolioBalance(@PathVariable("username") final String username){
+        return portfolioService.getPorfolioBalance(username);
+    }
+
+    @ExceptionHandler( {PortfolioAlreadyExistsException.class} )
+    public ResponseEntity<String> handleAlreadyExists() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler( {PortfolioNotFoundException.class} )
+    public ResponseEntity<String> handleNotFound() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+
 }

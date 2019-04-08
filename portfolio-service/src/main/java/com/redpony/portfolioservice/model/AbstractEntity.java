@@ -34,9 +34,8 @@ public abstract class AbstractEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
-    @Column(name = "uid", unique = true)
-    private int uid;
+    @Column(name = "id", unique = true)
+    private Integer id;
 
 
 }

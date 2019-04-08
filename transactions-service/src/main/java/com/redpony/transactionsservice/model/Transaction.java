@@ -18,7 +18,7 @@ public class Transaction {
     @Id
     @GeneratedValue
     Long id;
-    private String userName;
+    private String username;
     private String owner;
     @Column(name = "trans_amount")
     private BigDecimal amount = BigDecimal.ZERO;

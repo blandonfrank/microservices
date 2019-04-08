@@ -1,51 +1,67 @@
 package com.redpony.transactionsservice.controller;
 
 import com.redpony.transactionsservice.model.Transaction;
+import com.redpony.transactionsservice.model.TransactionType;
 import com.redpony.transactionsservice.service.TransactionService;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 @Slf4j
-@RequestMapping("/transactions")
+@RequestMapping("/api")
 public class TransactionController {
 
     @Autowired
     TransactionService transactionService;
 
+    @Autowired
+    RestTemplate restTemplate;
+
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
     //Once authentication is added, only allow admins to call this
-    @GetMapping("/admin/all")
+    @GetMapping("/transactions")
     public List<Transaction> getAllTransaction(){
         return transactionService.getAllTransactions();
     }
 
-    @RequestMapping("/id/{id}")
+    @RequestMapping("/transaction/{id}")
     public Transaction getTransaction(@PathVariable("id") Long id){
         log.info("Request to get transaction: {}", id);
         return verifyTransactionExists(id);
     }
 
-    @RequestMapping("/user/{username}")
-    public List<Transaction> getTransactions(@PathVariable("username") String username){
+    @RequestMapping("/transactions/user/{username}")
+    public List<Transaction> getTransactionsByUser(@PathVariable("username") String username){
         log.info("Request to get transactions for user: {}", username);
         return transactionService.getByUserName(username);
     }
 
-    @PostMapping("/create")
-    public  ResponseEntity<Transaction>  createTransaction(@Valid @RequestBody Transaction transaction){
+    @PostMapping("/transaction")
+    public  ResponseEntity<Transaction> createTransaction(@Valid @RequestBody Transaction transaction){
         log.info("Request to create transaction: {}");
         return ResponseEntity.ok().body(transactionService.createTransaction(transaction));
     }
 
-    @PutMapping("/update")
+    @PutMapping("/transaction")
     public ResponseEntity<Transaction> updateTransaction(@Valid @RequestBody Transaction transaction){
         log.info("Request to update transaction: {}", transaction);
 
@@ -54,7 +70,7 @@ public class TransactionController {
         return ResponseEntity.ok().body(transactionService.updateTransaction(transaction));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/transaction/{id}")
     public ResponseEntity<?> deleteTransaction(@PathVariable("id") Long id){
         log.info("Request to delete transaction: {}", id);
 
@@ -73,6 +89,12 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NoSuchElementException.class)
     public String notFoundHandler(NoSuchElementException ex){
+        return ex.getMessage();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(InvalidArgumentException.class)
+    public String invalidRequestHanlder(InvalidArgumentException ex){
         return ex.getMessage();
     }
 }

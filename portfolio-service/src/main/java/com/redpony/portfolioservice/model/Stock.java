@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 @Table(name = "stocks")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Stock extends AbstractEntity {
-    private String username;
     private String symbol;
     private int shares;
     private BigDecimal totalReturn = BigDecimal.ZERO;

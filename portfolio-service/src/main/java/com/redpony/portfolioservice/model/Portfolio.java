@@ -22,8 +22,8 @@ public class Portfolio extends AbstractEntity {
     private BigDecimal performance = BigDecimal.ZERO;
     private double risk;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<Stock> stocksOwned;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Stock> stocks;
 
 
 

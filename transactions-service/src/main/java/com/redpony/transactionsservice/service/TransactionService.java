@@ -1,21 +1,16 @@
 package com.redpony.transactionsservice.service;
 
 import com.redpony.transactionsservice.TransactionsServiceApplication;
-import com.redpony.transactionsservice.model.Stock;
 import com.redpony.transactionsservice.model.Transaction;
-import com.redpony.transactionsservice.model.TransactionType;
 import com.redpony.transactionsservice.repository.StockRepository;
 import com.redpony.transactionsservice.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -39,10 +34,14 @@ public class TransactionService {
         return transactionRepository.findById(id);
     }
 
-    public List<Transaction> getByUserName(String userName){
-        return transactionRepository.findByUserName(userName);
+    public List<Transaction> getByUserName(String username){
+        List<Transaction> transactions = Collections.emptyList();
+        if(transactionRepository.existsByUsername(username))
+            transactions = transactionRepository.findByUsername(username);
+        return transactions;
     }
 
+    @Transactional
     public Transaction createTransaction(Transaction transaction){
         log.info("Creating transaction: {}", transaction.toString());
 
@@ -54,7 +53,7 @@ public class TransactionService {
 
     public void sendTransactionMessage(Transaction transaction){
         Map<String, String> transactionMap = new HashMap<>();
-        transactionMap.put("username", transaction.getUserName());
+        transactionMap.put("username", transaction.getUsername());
         transactionMap.put("symbol", transaction.getStock().getSymbol());
         transactionMap.put("amount", transaction.getAmount().toPlainString());
         transactionMap.put("shares", String.valueOf(transaction.getStock().getShares()));
@@ -64,13 +63,16 @@ public class TransactionService {
         rabbitTemplate.convertAndSend(TransactionsServiceApplication.FINANCIAL_MESSAGE_QUEUE, transactionMap);
     }
 
+    @Transactional
     public Transaction updateTransaction(Transaction transaction){
         Transaction updatedTransaction = transactionRepository.save(transaction);
         return updatedTransaction;
     }
 
+    @Transactional
     public void deleteTransaction(Long id){
          transactionRepository.deleteById(id);
     }
+
 
 }
