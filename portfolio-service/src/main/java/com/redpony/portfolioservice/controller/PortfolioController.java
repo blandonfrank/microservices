@@ -7,13 +7,11 @@ import com.redpony.portfolioservice.service.PortfolioService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -33,13 +31,13 @@ public class PortfolioController {
 
 
     @GetMapping("/portfolio/{id}")
-    public Portfolio getPortfolio(@PathVariable("username") final String username){
-        return portfolioService.getPortfolio(username);
+    public Portfolio getPortfolio(@PathVariable("id") final int id) throws PortfolioNotFoundException {
+        return portfolioService.getPortfolioById(id);
     }
 
     @GetMapping("/portfolio/user/{username}")
-    public Portfolio getPortfolioByUser(@PathVariable("username") final String username){
-        return portfolioService.getPortfolio(username);
+    public Portfolio getPortfolioByUser(@PathVariable("username") final String username) throws PortfolioNotFoundException {
+        return portfolioService.getPortfolioByUsername(username);
     }
 
     @PostMapping("/portfolio")

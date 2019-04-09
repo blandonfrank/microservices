@@ -3,22 +3,16 @@ package com.redpony.portfolioservice.service;
 import com.redpony.portfolioservice.exceptions.PortfolioAlreadyExistsException;
 import com.redpony.portfolioservice.exceptions.PortfolioNotFoundException;
 import com.redpony.portfolioservice.model.Portfolio;
-import com.redpony.portfolioservice.model.Stock;
 import com.redpony.portfolioservice.repository.PortfolioRepository;
 import com.redpony.portfolioservice.repository.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import javax.websocket.server.PathParam;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @RestController
 @Slf4j
@@ -35,14 +29,15 @@ public class PortfolioService {
     }
 
 
-    public Portfolio getPortfolio(@PathVariable("username") final String username){
-        Portfolio portfolio = portfolioRepository.findByUsername(username);
-
-        log.info("Looking up portfolio for " + username);
-        if(Objects.isNull(portfolio))
-            return new Portfolio();
-
-        return portfolio;
+    public Portfolio getPortfolioById(int id) throws PortfolioNotFoundException {
+        if(!portfolioExists(id))
+            throw new PortfolioNotFoundException("Portfolio not found");
+        return portfolioRepository.findById(id).get();
+    }
+    public Portfolio getPortfolioByUsername(String username) throws PortfolioNotFoundException {
+        if(!portfolioExists(username))
+            throw new PortfolioNotFoundException("Portfolio not found");
+        return portfolioRepository.findByUsername(username);
     }
 
     @Transactional
