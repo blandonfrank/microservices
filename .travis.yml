@@ -1,1 +1,30 @@
-language: java
+matrix:
+        include:
+        - language: java
+          before script:
+                  - cd transactions-service
+          script:
+                  - mvn clean package
+
+        - language: java
+          before script:
+                  - cd portfolio-service 
+          script:   
+                  - mvn clean package
+
+        - language: java
+          before script:
+                  - cd stocks-service-producer
+          script:
+                  - mvn clean package
+
+        - language: java
+          before script:
+                  - cd discovery-eureka-service
+          script:
+                  - mvn clean package
+
+
+~
+
+~                                      
