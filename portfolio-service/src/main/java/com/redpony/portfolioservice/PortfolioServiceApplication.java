@@ -1,4 +1,4 @@
-package com.redpony.portfolioservice.app;
+package com.redpony.portfolioservice;
 
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import com.redpony.portfolioservice.listener.TransactionMessageListener;
