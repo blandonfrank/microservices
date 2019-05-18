@@ -2,8 +2,8 @@
 
 This will be a list of projects/services used to have a full end-to-end simulation of stocks getting traded.
 
-### Trader service
-The trader service is at the heart of the entire application flow. This service gets called from the UI layer whenever a user decides to BUY a new stock - given that they have the funds -, or decides to SELL a current holding.
+### Transaction service
+The trader/transaction service is at the heart of the entire application flow. This service gets called from the UI layer whenever a user decides to BUY a new stock - given that they have the funds -, or decides to SELL a current holding.
 ######   Features
 * Buy Stocks
 * Sell stocks
