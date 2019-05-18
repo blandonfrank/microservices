@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/blandonfrank/microservices.svg?branch=master)
+![Build Status](https://travis-ci.org/blandonfrank/microservices.svg?branch=master)
 
 # Microservices
 
