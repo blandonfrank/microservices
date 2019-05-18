@@ -1,15 +1,10 @@
 package com.redpony.transactionsservice.controller;
 
 import com.redpony.transactionsservice.model.Transaction;
-import com.redpony.transactionsservice.model.TransactionType;
 import com.redpony.transactionsservice.service.TransactionService;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,7 +52,7 @@ public class TransactionController {
 
     @PostMapping("/transaction")
     public  ResponseEntity<Transaction> createTransaction(@Valid @RequestBody Transaction transaction){
-        log.info("Request to create transaction: {}");
+        log.info("Request to create transaction: {}", transaction);
         return ResponseEntity.ok().body(transactionService.createTransaction(transaction));
     }
 
@@ -93,8 +88,8 @@ public class TransactionController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(InvalidArgumentException.class)
-    public String invalidRequestHanlder(InvalidArgumentException ex){
+    @ExceptionHandler(IllegalArgumentException.class)
+    public String invalidRequestHanlder(IllegalArgumentException ex){
         return ex.getMessage();
     }
 }
