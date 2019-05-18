@@ -1,9 +1,12 @@
 package com.redpony.transactionsservice.service;
 
 import com.redpony.transactionsservice.TransactionsServiceApplication;
+import com.redpony.transactionsservice.events.TransactionCreatedEvent;
 import com.redpony.transactionsservice.model.Transaction;
 import com.redpony.transactionsservice.repository.StockRepository;
 import com.redpony.transactionsservice.repository.TransactionRepository;
+import io.eventuate.tram.events.ResultWithEvents;
+import io.eventuate.tram.events.publisher.DomainEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static java.util.Collections.singletonList;
+
 @Service
 @Slf4j
 public class TransactionService {
@@ -19,6 +24,9 @@ public class TransactionService {
     private TransactionRepository transactionRepository;
     private StockRepository stockRepository;
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private DomainEventPublisher domainEventPublisher;
+
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, StockRepository stockRepository, RabbitTemplate rabbitTemplate){
@@ -44,9 +52,13 @@ public class TransactionService {
     @Transactional
     public Transaction createTransaction(Transaction transaction){
         log.info("Creating transaction: {}", transaction.toString());
+        TransactionCreatedEvent transactionCreatedEvent = new TransactionCreatedEvent(transaction);
+        ResultWithEvents<Transaction> transWithEvents = new ResultWithEvents<>(transaction, singletonList(transactionCreatedEvent));
 
-        transactionRepository.save(transaction);
-        sendTransactionMessage(transaction);
+        Transaction updatedTransaction = transWithEvents.result;
+        transactionRepository.save(updatedTransaction);
+        domainEventPublisher.publish(Transaction.class, updatedTransaction.getId(), transWithEvents.events);
+        //sendTransactionMessage(transaction);
 
         return transaction;
     }
@@ -55,7 +67,7 @@ public class TransactionService {
         Map<String, String> transactionMap = new HashMap<>();
         transactionMap.put("username", transaction.getUsername());
         transactionMap.put("symbol", transaction.getStock().getSymbol());
-        transactionMap.put("amount", transaction.getAmount().toPlainString());
+        transactionMap.put("amount", transaction.getTotal().getAmount().toPlainString());
         transactionMap.put("shares", String.valueOf(transaction.getStock().getShares()));
         transactionMap.put("type", transaction.getTransactionType().name());
 

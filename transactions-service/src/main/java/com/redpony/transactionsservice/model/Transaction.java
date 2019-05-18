@@ -1,11 +1,8 @@
 package com.redpony.transactionsservice.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.OnDelete;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -20,8 +17,9 @@ public class Transaction {
     Long id;
     private String username;
     private String owner;
+    @Embedded
     @Column(name = "trans_amount")
-    private BigDecimal amount = BigDecimal.ZERO;
+    private Money total;
     private TransactionType transactionType;
 
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", locale = "en_us")
@@ -32,6 +30,9 @@ public class Transaction {
     private BigDecimal commission = BigDecimal.ZERO;
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private Stock stock;
+
+    @Enumerated(value = EnumType.STRING)
+    private TransactionState transactionState = TransactionState.PENDING;
 
 
 }
