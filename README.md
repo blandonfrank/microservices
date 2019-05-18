@@ -1,3 +1,5 @@
+https://travis-ci.org/blandonfrank/microservices.svg?branch=master
+
 # Microservices
 
 This will be a list of projects/services used to have a full end-to-end simulation of stocks getting traded.
