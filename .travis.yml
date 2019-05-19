@@ -4,7 +4,7 @@ matrix:
           before_script:
                   - cd transactions-service/
           script:
-                  - mvn clean package
+                  - mvn -DskipTests clean package
 
         - language: java
           before_script:
