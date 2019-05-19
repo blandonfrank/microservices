@@ -27,7 +27,6 @@ public class TransactionService {
     @Autowired
     private DomainEventPublisher domainEventPublisher;
 
-
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, StockRepository stockRepository, RabbitTemplate rabbitTemplate){
         this.transactionRepository = transactionRepository;
@@ -52,13 +51,14 @@ public class TransactionService {
     @Transactional
     public Transaction createTransaction(Transaction transaction){
         log.info("Creating transaction: {}", transaction.toString());
+        //send out a transaction saga event to kafka
         TransactionCreatedEvent transactionCreatedEvent = new TransactionCreatedEvent(transaction);
         ResultWithEvents<Transaction> transWithEvents = new ResultWithEvents<>(transaction, singletonList(transactionCreatedEvent));
 
         Transaction updatedTransaction = transWithEvents.result;
         transactionRepository.save(updatedTransaction);
         domainEventPublisher.publish(Transaction.class, updatedTransaction.getId(), transWithEvents.events);
-        //sendTransactionMessage(transaction);
+       // sendTransactionMessage(transaction); probably going to get rid of this
 
         return transaction;
     }
@@ -87,4 +87,20 @@ public class TransactionService {
     }
 
 
+    /*
+    If the response from the portfolio service is a sucess/approval then the transaction
+    status needs to be updated to approved
+     */
+    public void approveTransaction(Long id) {
+        log.info("Transaction {} approved!", id);
+    }
+
+    /*
+    If the response back from the portfolio service is a failure, then the transaction is rejected
+    the status of the transaction needs to set to rejected, and a compensating transaction
+    needs to take place
+     */
+    public void rejectTransaction(Long id) {
+        log.info("Transaction {} rejected!", id);
+    }
 }

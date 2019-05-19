@@ -20,12 +20,15 @@ import java.util.NoSuchElementException;
 @RequestMapping("/api")
 public class TransactionController {
 
-    @Autowired
     TransactionService transactionService;
 
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    public TransactionController(TransactionService transactionService){
+        this.transactionService = transactionService;
+    }
 
     @Bean
     public RestTemplate restTemplate() {

@@ -79,6 +79,18 @@
 			<version>0.11.0.RELEASE</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>io.eventuate.tram.core</groupId>
+			<artifactId>eventuate-tram-events</artifactId>
+			<version>0.21.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>io.eventuate.tram.core</groupId>
+			<artifactId>eventuate-tram-jdbc-kafka</artifactId>
+			<version>0.21.0.RELEASE</version>
+			<scope>compile</scope>
+		</dependency>
+
 	</dependencies>
 
 	<repositories>

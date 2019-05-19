@@ -20,6 +20,7 @@ public class Transaction {
     @Embedded
     @Column(name = "trans_amount")
     private Money total;
+    @Enumerated(value = EnumType.STRING)
     private TransactionType transactionType;
 
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", locale = "en_us")
