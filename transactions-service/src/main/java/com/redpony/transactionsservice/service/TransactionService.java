@@ -1,12 +1,10 @@
 package com.redpony.transactionsservice.service;
 
-import com.redpony.transactionsservice.TransactionsServiceApplication;
-import com.redpony.transactionsservice.events.TransactionCreatedEvent;
 import com.redpony.transactionsservice.model.Transaction;
-import com.redpony.transactionsservice.repository.StockRepository;
 import com.redpony.transactionsservice.repository.TransactionRepository;
+import com.redpony.transactionsservice.sagas.ProcessTransactionSagaData;
 import io.eventuate.tram.events.ResultWithEvents;
-import io.eventuate.tram.events.publisher.DomainEventPublisher;
+import io.eventuate.tram.sagas.orchestration.SagaManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,22 +13,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static java.util.Collections.singletonList;
-
 @Service
 @Slf4j
 public class TransactionService {
 
     private TransactionRepository transactionRepository;
-    private StockRepository stockRepository;
     private RabbitTemplate rabbitTemplate;
-    @Autowired
-    private DomainEventPublisher domainEventPublisher;
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, StockRepository stockRepository, RabbitTemplate rabbitTemplate){
+    private SagaManager<ProcessTransactionSagaData> processTransactionSagaDataSagaManager;
+
+    @Autowired
+    public TransactionService(TransactionRepository transactionRepository, RabbitTemplate rabbitTemplate){
         this.transactionRepository = transactionRepository;
-        this.stockRepository = stockRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
 
@@ -52,28 +47,33 @@ public class TransactionService {
     public Transaction createTransaction(Transaction transaction){
         log.info("Creating transaction: {}", transaction.toString());
         //send out a transaction saga event to kafka
-        TransactionCreatedEvent transactionCreatedEvent = new TransactionCreatedEvent(transaction);
-        ResultWithEvents<Transaction> transWithEvents = new ResultWithEvents<>(transaction, singletonList(transactionCreatedEvent));
+      //  TransactionCreatedEvent transactionCreatedEvent = new TransactionCreatedEvent(transaction);
+       ResultWithEvents<Transaction> transWithEvents = new ResultWithEvents<>(transaction, Collections.emptyList());
 
         Transaction updatedTransaction = transWithEvents.result;
         transactionRepository.save(updatedTransaction);
-        domainEventPublisher.publish(Transaction.class, updatedTransaction.getId(), transWithEvents.events);
+
+
+        ProcessTransactionSagaData data = new ProcessTransactionSagaData(updatedTransaction);
+        processTransactionSagaDataSagaManager.create(data, Transaction.class, updatedTransaction.getTransId());
+
+        //domainEventPublisher.publish(Transaction.class, updatedTransaction.getTransId(), transWithEvents.events);
        // sendTransactionMessage(transaction); probably going to get rid of this
 
-        return transaction;
+        return updatedTransaction   ;
     }
 
-    public void sendTransactionMessage(Transaction transaction){
-        Map<String, String> transactionMap = new HashMap<>();
-        transactionMap.put("username", transaction.getUsername());
-        transactionMap.put("symbol", transaction.getStock().getSymbol());
-        transactionMap.put("amount", transaction.getTotal().getAmount().toPlainString());
-        transactionMap.put("shares", String.valueOf(transaction.getStock().getShares()));
-        transactionMap.put("type", transaction.getTransactionType().name());
-
-        log.info("Sending transaction " + transaction.toString() + " message to queue ");
-        rabbitTemplate.convertAndSend(TransactionsServiceApplication.FINANCIAL_MESSAGE_QUEUE, transactionMap);
-    }
+//    public void sendTransactionMessage(Transaction transaction){
+//        Map<String, String> transactionMap = new HashMap<>();
+//        transactionMap.put("username", transaction.getUsername());
+//        transactionMap.put("symbol", transaction.getStock().getSymbol());
+//        transactionMap.put("amount", transaction.getAmount().toPlainString());
+//        transactionMap.put("shares", String.valueOf(transaction.getStock().getShares()));
+//        transactionMap.put("type", transaction.getTransactionType().name());
+//
+//        log.info("Sending transaction " + transaction.toString() + " message to queue ");
+//        //rabbitTemplate.convertAndSend(TransactionsServiceApplication.FINANCIAL_MESSAGE_QUEUE, transactionMap);
+//    }
 
     @Transactional
     public Transaction updateTransaction(Transaction transaction){

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -41,13 +40,13 @@ public class TransactionController {
         return transactionService.getAllTransactions();
     }
 
-    @RequestMapping("/transaction/{id}")
-    public Transaction getTransaction(@PathVariable("id") Long id){
+    @GetMapping("/transaction/{transId}")
+    public Transaction getTransaction(@PathVariable("transId") Long id){
         log.info("Request to get transaction: {}", id);
         return verifyTransactionExists(id);
     }
 
-    @RequestMapping("/transactions/user/{username}")
+    @GetMapping("/transactions/user/{username}")
     public List<Transaction> getTransactionsByUser(@PathVariable("username") String username){
         log.info("Request to get transactions for user: {}", username);
         return transactionService.getByUserName(username);
@@ -64,12 +63,12 @@ public class TransactionController {
         log.info("Request to update transaction: {}", transaction);
 
         //check if transaction exist, else throw and exception
-        verifyTransactionExists(transaction.getId());
+        verifyTransactionExists(transaction.getTransId());
         return ResponseEntity.ok().body(transactionService.updateTransaction(transaction));
     }
 
-    @DeleteMapping("/transaction/{id}")
-    public ResponseEntity<?> deleteTransaction(@PathVariable("id") Long id){
+    @DeleteMapping("/transaction/{transId}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable("transId") Long id){
         log.info("Request to delete transaction: {}", id);
 
         //check if transaction exist, else throw and exception

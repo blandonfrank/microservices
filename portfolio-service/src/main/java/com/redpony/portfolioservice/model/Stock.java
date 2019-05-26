@@ -6,13 +6,17 @@ import lombok.*;
 import java.math.BigDecimal;
 
 
-@Entity
-@Table(name = "stocks")
+@Embeddable
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class Stock extends AbstractEntity {
+public class Stock{
     private String symbol;
-    private int shares;
+    private Long shares;
     private BigDecimal totalReturn = BigDecimal.ZERO;
     private BigDecimal averageCost = BigDecimal.ZERO;
+    private BigDecimal totalCost = BigDecimal.ZERO;
+
+    public Stock(String symbol){
+        this.symbol = symbol;
+    }
 
 }

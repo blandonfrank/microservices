@@ -1,30 +1,41 @@
 package com.redpony.transactionsservice.configuration;
 
-import com.redpony.transactionsservice.service.PortfolioEventConsumer;
-import io.eventuate.jdbckafka.TramJdbcKafkaConfiguration;
-import io.eventuate.tram.events.publisher.TramEventsPublisherConfiguration;
-import io.eventuate.tram.events.subscriber.DomainEventDispatcher;
-import io.eventuate.tram.messaging.consumer.MessageConsumer;
-import io.eventuate.tram.messaging.producer.jdbc.TramMessageProducerJdbcConfiguration;
+import com.redpony.transactionsservice.sagas.ProcessTransactionSaga;
+import com.redpony.transactionsservice.sagas.ProcessTransactionSagaData;
+import com.redpony.transactionsservice.service.OrderCommandHandler;
+import io.eventuate.tram.commands.consumer.CommandDispatcher;
+import io.eventuate.tram.sagas.orchestration.Saga;
+import io.eventuate.tram.sagas.orchestration.SagaManager;
+import io.eventuate.tram.sagas.orchestration.SagaManagerImpl;
+import io.eventuate.tram.sagas.participant.SagaCommandDispatcher;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
+@EnableJpaRepositories(basePackages ={"io.eventuate.tram.sagas.orchestration", "com.redpony.transactionsservice.repository"})
 @EnableAutoConfiguration
-@Import({TramEventsPublisherConfiguration.class,
-        TramMessageProducerJdbcConfiguration.class,
-        TramJdbcKafkaConfiguration.class
-        })
 public class TransactionConfiguration {
 
+
     @Bean
-    public PortfolioEventConsumer portfolioEventConsumer() {
-        return new PortfolioEventConsumer();
+    public SagaManager<ProcessTransactionSagaData> createOrderSagaManager(Saga<ProcessTransactionSagaData> saga) {
+        return new SagaManagerImpl<>(saga);
     }
+
     @Bean
-    public DomainEventDispatcher domainEventDispatcher(PortfolioEventConsumer portfolioEventConsumer, MessageConsumer messageConsumer) {
-        return new DomainEventDispatcher("PortfolioServiceEvents", portfolioEventConsumer.domainEventHandlers(), messageConsumer);
+    public ProcessTransactionSaga createOrderSaga() {
+        return new ProcessTransactionSaga();
+    }
+
+    @Bean
+    public OrderCommandHandler orderCommandHandler() {
+        return new OrderCommandHandler();
+    }
+
+    @Bean
+    public CommandDispatcher orderCommandDispatcher(OrderCommandHandler target) {
+        return new SagaCommandDispatcher("transactionCommandDispatcher", target.commandHandlerDefinitions());
     }
 }

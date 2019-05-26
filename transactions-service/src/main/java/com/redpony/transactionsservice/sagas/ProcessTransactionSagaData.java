@@ -1,14 +1,13 @@
-package com.redpony.transactionsservice.events;
+package com.redpony.transactionsservice.sagas;
 
 import com.redpony.transactionsservice.model.Transaction;
-import io.eventuate.tram.events.common.DomainEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter
-public class PorfolioCreditReservationFailedEvent implements DomainEvent {
+public class ProcessTransactionSagaData {
     private Transaction transaction;
 
 }

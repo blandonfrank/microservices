@@ -4,7 +4,6 @@ import com.redpony.portfolioservice.exceptions.PortfolioAlreadyExistsException;
 import com.redpony.portfolioservice.exceptions.PortfolioNotFoundException;
 import com.redpony.portfolioservice.model.Portfolio;
 import com.redpony.portfolioservice.repository.PortfolioRepository;
-import com.redpony.portfolioservice.repository.StockRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -20,9 +18,6 @@ public class PortfolioService {
 
     @Autowired
     private PortfolioRepository portfolioRepository;
-
-    @Autowired
-    private StockRepository stockRepository;
 
     public List<Portfolio> getAllPortfolios(){
         return portfolioRepository.findAll();
@@ -55,10 +50,9 @@ public class PortfolioService {
 
         Portfolio portfolioToUpdate = portfolioRepository.getOne(portfolio.getId());
 
-        portfolioToUpdate.setBalance(portfolio.getBalance());
         portfolioToUpdate.setCash(portfolio.getCash());
-        if(portfolio.getStocks().size() > 0)
-            portfolioToUpdate.setStocks(portfolio.getStocks());
+//        if(portfolio.getStocks().size() > 0)
+//            portfolioToUpdate.setStocks(portfolio.getStocks());
 
         return portfolioRepository.save(portfolio);
     }

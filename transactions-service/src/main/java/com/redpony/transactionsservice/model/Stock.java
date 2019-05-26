@@ -1,6 +1,5 @@
 package com.redpony.transactionsservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,5 +19,5 @@ public class Stock {
     private String symbol;
     private String name;
     private BigDecimal price;
-    private int shares;
+    private Long shares;
 }
