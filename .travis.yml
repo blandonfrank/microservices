@@ -1,36 +1,27 @@
 matrix:
   include:
-      	  - language: java
-	  before_script:
-		- cd portfolio-transactions-libs/
-	  script:
-		- mvn clean install
-
-	  - language: java
-          before_script:
-                  - cd transactions-service/
-          script:
-                  - mvn -DskipTests clean package
-
-        - language: java
-          before_script:
-                  - cd portfolio-service/ 
-          script:   
-                  - mvn clean package
-
-        - language: java
-          before_script:
-                  - cd stocks-service-producer/
-          script:
-                  - mvn clean package
-
-        - language: java
-          before_script:
-                  - cd discovery-eureka-service/
-          script:
-                  - mvn clean package
-
-
-
-
-                                      
+    language: java
+    before_script:
+    - cd portfolio-transactions-libs/
+    script:
+    - mvn clean install
+    language: java
+    before_script:
+    - cd transactions-service/
+    script:
+    - mvn -DskipTests clean package
+    language: java
+    before_script:
+    - cd portfolio-service/
+    script:
+    - mvn clean package
+    language: java
+    before_script:
+    - cd stocks-service-producer/
+    script:
+    - mvn clean package
+    language: java
+    before_script:
+    - cd discovery-eureka-service/
+    script:
+    - mvn clean package
