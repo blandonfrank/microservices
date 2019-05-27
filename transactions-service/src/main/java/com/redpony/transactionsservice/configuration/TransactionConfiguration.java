@@ -1,7 +1,7 @@
 package com.redpony.transactionsservice.configuration;
 
-import com.redpony.transactionsservice.sagas.ProcessTransactionSaga;
-import com.redpony.transactionsservice.sagas.ProcessTransactionSagaData;
+import com.redpony.transactionsservice.sagas.TradeOrderSaga;
+import com.redpony.transactionsservice.sagas.ProcessOrderSagaData;
 import com.redpony.transactionsservice.service.OrderCommandHandler;
 import io.eventuate.tram.commands.consumer.CommandDispatcher;
 import io.eventuate.tram.sagas.orchestration.Saga;
@@ -20,13 +20,13 @@ public class TransactionConfiguration {
 
 
     @Bean
-    public SagaManager<ProcessTransactionSagaData> createOrderSagaManager(Saga<ProcessTransactionSagaData> saga) {
+    public SagaManager<ProcessOrderSagaData> createOrderSagaManager(Saga<ProcessOrderSagaData> saga) {
         return new SagaManagerImpl<>(saga);
     }
 
     @Bean
-    public ProcessTransactionSaga createOrderSaga() {
-        return new ProcessTransactionSaga();
+    public TradeOrderSaga tradeOrderSaga() {
+        return new TradeOrderSaga();
     }
 
     @Bean

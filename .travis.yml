@@ -1,6 +1,12 @@
 matrix:
   include:
-        - language: java
+      	  - language: java
+	  before_script:
+		- cd portfolio-transactions-libs/
+	  script:
+		- mvn clean install
+
+	  - language: java
           before_script:
                   - cd transactions-service/
           script:

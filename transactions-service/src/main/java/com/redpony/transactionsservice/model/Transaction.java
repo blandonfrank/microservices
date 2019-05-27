@@ -36,7 +36,7 @@ public class Transaction {
     private BigDecimal commission = BigDecimal.ZERO;
 
     @OneToOne(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY, optional = false)
+            fetch = FetchType.LAZY, optional = true)
     private Stock stock;
 
     @Enumerated(value = EnumType.STRING)

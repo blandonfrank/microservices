@@ -2,7 +2,7 @@ package com.redpony.transactionsservice.service;
 
 import com.redpony.transactionsservice.model.Transaction;
 import com.redpony.transactionsservice.repository.TransactionRepository;
-import com.redpony.transactionsservice.sagas.ProcessTransactionSagaData;
+import com.redpony.transactionsservice.sagas.ProcessOrderSagaData;
 import io.eventuate.tram.events.ResultWithEvents;
 import io.eventuate.tram.sagas.orchestration.SagaManager;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class TransactionService {
     private RabbitTemplate rabbitTemplate;
 
     @Autowired
-    private SagaManager<ProcessTransactionSagaData> processTransactionSagaDataSagaManager;
+    private SagaManager<ProcessOrderSagaData> processOrderSagaDataSagaManager;
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, RabbitTemplate rabbitTemplate){
@@ -54,8 +54,8 @@ public class TransactionService {
         transactionRepository.save(updatedTransaction);
 
 
-        ProcessTransactionSagaData data = new ProcessTransactionSagaData(updatedTransaction);
-        processTransactionSagaDataSagaManager.create(data, Transaction.class, updatedTransaction.getTransId());
+        ProcessOrderSagaData data = new ProcessOrderSagaData(updatedTransaction);
+        processOrderSagaDataSagaManager.create(data, Transaction.class, updatedTransaction.getTransId());
 
         //domainEventPublisher.publish(Transaction.class, updatedTransaction.getTransId(), transWithEvents.events);
        // sendTransactionMessage(transaction); probably going to get rid of this
