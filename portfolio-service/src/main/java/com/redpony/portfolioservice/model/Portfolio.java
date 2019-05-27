@@ -9,6 +9,7 @@ import com.redpony.portfolioservice.exceptions.InsufficientHoldingException;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -23,9 +24,12 @@ public class Portfolio extends AbstractEntity {
     private String username;
     @NonNull
     private String owner;
+    @Column(precision = 11, scale = 2)
     private BigDecimal totalBalance = BigDecimal.ZERO;
+    @Column(precision = 11, scale = 2)
     private BigDecimal cash = BigDecimal.ZERO;
     private String sentiment;
+    @Column(precision = 11, scale = 2)
     private BigDecimal performance = BigDecimal.ZERO;
     private double risk;
 
@@ -83,7 +87,7 @@ public class Portfolio extends AbstractEntity {
                 BigDecimal currentCost = updatedStock.getTotalCost();
                 BigDecimal newTotalCost = currentCost.add(newCost);
 
-                BigDecimal newAvgCost = newTotalCost.divide(new BigDecimal(currentShares + newShares));
+                BigDecimal newAvgCost = newTotalCost.divide(new BigDecimal(currentShares + newShares), 2, RoundingMode.HALF_UP);
                 updatedStock.setShares(currentShares + newShares);
                 updatedStock.setAverageCost(newAvgCost);
                 updatedStock.setTotalCost(newTotalCost);
@@ -93,7 +97,7 @@ public class Portfolio extends AbstractEntity {
                 Stock newStock = new Stock(symbol);
                 newStock.setShares(newShares);
                 newStock.setTotalCost(newCost);
-                BigDecimal avgCost = newCost.divide(new BigDecimal(newShares));
+                BigDecimal avgCost = newCost.divide(new BigDecimal(newShares),2, RoundingMode.HALF_UP);
                 newStock.setAverageCost(avgCost);
                 stocks.put(symbol, newStock);
             }

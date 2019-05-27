@@ -7,6 +7,7 @@ import com.redpony.common.commands.ReserveDebitCommand;
 import com.redpony.common.commands.ReserveDepositCommand;
 import com.redpony.common.commands.ReserveWithdrawCommand;
 import com.redpony.portfolioservice.exceptions.InsufficientFundsException;
+import com.redpony.portfolioservice.exceptions.InsufficientHoldingException;
 import com.redpony.portfolioservice.model.Portfolio;
 import com.redpony.portfolioservice.repository.PortfolioRepository;
 import io.eventuate.tram.commands.consumer.CommandHandlers;
@@ -54,7 +55,7 @@ public class PortfolioCommandHandler {
             try {
                 portfolio.reserveCredit(cmd.getTransId(), cmd.getAmount());
                 portfolio.addStock(cmd.getSymbol(), cmd.getShares(), cmd.getAmount());
-                return withSuccess(new ApproveOrderCommand());
+                return withSuccess(new ApproveOrderCommand(cmd.getTransId()));
             } catch (InsufficientFundsException e) {
                 return withFailure(new RejectOrderCommand(cmd.getTransId()));
             }
@@ -70,8 +71,8 @@ public class PortfolioCommandHandler {
         if(!Objects.isNull(portfolio) && !Objects.isNull(portfolio.getStocks()) && portfolio.getStocks().containsKey(cmd.getSymbol())) {
             try {
                 portfolio.updateStockHolding(cmd.getTransId(), cmd.getSymbol(), cmd.getShares(), cmd.getAmount());
-                return withSuccess(new ApproveOrderCommand());
-            } catch (InsufficientFundsException e) {
+                return withSuccess(new ApproveOrderCommand(cmd.getTransId()));
+            } catch (InsufficientHoldingException e) {
                 return withFailure(new RejectOrderCommand(cmd.getTransId()));
             }
         }else
@@ -91,7 +92,7 @@ public class PortfolioCommandHandler {
         Portfolio portfolio = portfolioRepository.findByUsername(userName);
         if (!Objects.isNull(portfolio)) {
             portfolio.deposit(cmd.getTransId(), cmd.getAmount());
-            return withSuccess(new ApproveOrderCommand());
+            return withSuccess(new ApproveOrderCommand(cmd.getTransId()));
         } else
             return withFailure(new RejectOrderCommand(cmd.getTransId()));
     }

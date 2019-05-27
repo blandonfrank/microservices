@@ -1,11 +1,12 @@
 package com.redpony.transactionsservice.sagas;
 
+import com.redponny.common.replies.ApproveOrderCommand;
+import com.redponny.common.replies.RejectOrderCommand;
 import com.redpony.common.commands.ReserveCreditCommand;
 import com.redpony.common.commands.ReserveDebitCommand;
 import com.redpony.common.commands.ReserveDepositCommand;
 import com.redpony.common.commands.ReserveWithdrawCommand;
 import com.redpony.transactionsservice.model.Stock;
-import com.redpony.transactionsservice.model.Transaction;
 import io.eventuate.tram.commands.consumer.CommandWithDestination;
 import io.eventuate.tram.sagas.orchestration.SagaDefinition;
 import io.eventuate.tram.sagas.simpledsl.SimpleSaga;
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
 import static io.eventuate.tram.commands.consumer.CommandWithDestinationBuilder.send;
 
 @Slf4j
-public class TradeOrderSaga extends TransactionServiceSaga implements SimpleSaga<ProcessOrderSagaData> {
+public class TradeOrderSaga implements SimpleSaga<ProcessOrderSagaData> {
 
     private static final String PORTFOLIO_DESTINATION = "portfolioService";
 
@@ -37,13 +38,17 @@ public class TradeOrderSaga extends TransactionServiceSaga implements SimpleSaga
 
 
     /**
-     * This is to be used when trying to buy stocks. We start a saga and send a command
-     * to the portfolio service to check whether the user has enough funds or not to perform the transaction
+     * This is to send commands from the transaction service to the portfolio services. Depending on the type of the transaction
+     * A different command is send out.
+     * If BUY       - ReserveCreditCommand (transaction id, username, symbol, # of shares, price)
+     * IF SELL      - ReserveDebitCommand  (transaction id, username, symbol, # of shares, price)
+     * IF DEPOSIT   - ReserveDepositCommand (transaction id, username, amount)
+     * IF WITHDRAW  - ReserveWithdrawCommand (transaction id, username, amount)
      * @param data
      * @return
      */
     private CommandWithDestination sendCommandByTransactionType(ProcessOrderSagaData data) {
-        log.info("Trying to reserve credit with portfolio services");
+        log.info("Trying to send command to " + data.getTransaction().getTransactionType().toString() + " to portfolio services");
         long transactionId = data.getTransaction().getTransId();
         String userName = data.getTransaction().getUsername();
         BigDecimal amount = data.getTransaction().getAmount();
@@ -51,13 +56,13 @@ public class TradeOrderSaga extends TransactionServiceSaga implements SimpleSaga
 
         switch (data.getTransaction().getTransactionType()) {
             case BUY:
-                Stock stock = getStockInfo(data.getTransaction());
+                Stock stock = data.getTransaction().getStock();
 
                 return send(new ReserveCreditCommand(transactionId, userName, amount, stock.getSymbol(), stock.getShares(), stock.getPrice()))
                         .to(PORTFOLIO_DESTINATION)
                         .build();
             case SELL:
-                stock = getStockInfo(data.getTransaction());
+                stock = data.getTransaction().getStock();
 
                 return send(new ReserveDebitCommand(transactionId, userName, amount, stock.getSymbol(), stock.getShares(), stock.getPrice()))
                         .to(PORTFOLIO_DESTINATION)
@@ -74,12 +79,18 @@ public class TradeOrderSaga extends TransactionServiceSaga implements SimpleSaga
         return null;
     }
 
-    private Stock getStockInfo(Transaction transaction) {
-        Stock stock = transaction.getStock();
-        String symbol = stock.getSymbol();
-        Long shares = stock.getShares();
-        BigDecimal price = stock.getPrice();
-        return stock;
+    public CommandWithDestination reject(ProcessOrderSagaData data) {
+        log.info("Command received to reject transaction");
+        return send(new RejectOrderCommand(data.getTransaction().getTransId()))
+                .to("transactionService")
+                .build();
+    }
+
+    public CommandWithDestination approve(ProcessOrderSagaData data) {
+        log.info("Command received to approve transaction");
+        return send(new ApproveOrderCommand(data.getTransaction().getTransId()))
+                .to("transactionService")
+                .build();
     }
 
 

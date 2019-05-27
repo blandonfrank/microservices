@@ -11,8 +11,11 @@ import java.math.BigDecimal;
 public class Stock{
     private String symbol;
     private Long shares;
+    @Column(precision = 11, scale = 2)
     private BigDecimal totalReturn = BigDecimal.ZERO;
+    @Column(precision = 11, scale = 2)
     private BigDecimal averageCost = BigDecimal.ZERO;
+    @Column(precision = 11, scale = 2)
     private BigDecimal totalCost = BigDecimal.ZERO;
 
     public Stock(String symbol){
